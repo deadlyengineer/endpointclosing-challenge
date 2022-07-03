@@ -39,7 +39,7 @@ const decideStatus = (dueDate, isComplete) => {
   const overdue = !isComplete && dueDateObject && (dueDateObject < new Date());
   let status = overdue && !isComplete ? "overdue" : "unComplete";
   status = isComplete ? "isComplete" : status;
-  return {overdue, status};
+  return { overdue, status };
 }
 
 const ListItem = ({ id, description, isComplete, dueDate, status }) => {
@@ -61,7 +61,7 @@ const ListItem = ({ id, description, isComplete, dueDate, status }) => {
     });
     console.log('res', res);
     if (res && res.status) {
-      const {_, status} = decideStatus(dueDate, !state.isComplete);
+      const { _, status } = decideStatus(dueDate, !state.isComplete);
       // console.log('status', status);
       setState({
         isComplete: !state.isComplete,
@@ -80,11 +80,11 @@ const ListItem = ({ id, description, isComplete, dueDate, status }) => {
           <div>
             {
               loading ?
-              <div class="loadingio-spinner-spinner-ie828anktn"><div class="ldio-4h4fnkkvo8j"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>
-              :
-              <input className='mr-2' type="checkbox" checked={state.isComplete} onClick={handleClick} />
+                <div className="mr-2 loadingio-spinner-rolling-small"><div className="ldio-small"><div></div></div></div>
+                :
+                <input className='mr-2' type="checkbox" checked={state.isComplete} onClick={handleClick} />
             }
-            <span className="select-none" style={{textDecoration: state.isComplete && "line-through"}}>{description}</span>
+            <span className="select-none" style={{ textDecoration: state.isComplete && "line-through" }}>{description}</span>
           </div>
           <div>
             <span className="select-none">{dueDate ? dueDate.split("T")[0].replaceAll("-", "/") : ""}</span>
@@ -96,9 +96,11 @@ const ListItem = ({ id, description, isComplete, dueDate, status }) => {
 }
 
 function App() {
+  const [loading, setLoading] = useState(false);
   const [listData, setListData] = useState([]);
   useLayoutEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       const res = await fetcher();
       if (res) {
         const listItems = res.map((elem) => {
@@ -106,14 +108,14 @@ function App() {
           // // console.info(dueDateObject < new Date());
           // const overdue = !elem.isComplete && dueDateObject && (dueDateObject < new Date());
           // let status = overdue && !elem.isComplete ? "overdue" : "unComplete";
-          const {overdue, status} = decideStatus(elem.dueDate, elem.isComplete);
+          const { overdue, status } = decideStatus(elem.dueDate, elem.isComplete);
           return {
             ...elem,
             overdue,
             status
           }
         });
-        
+
         let overdueList = listItems.filter((elem) => elem.overdue);
         let todoList = listItems.filter((elem) => !elem.overdue && !elem.isComplete);
         let doneList = listItems.filter((elem) => elem.isComplete);
@@ -126,6 +128,7 @@ function App() {
 
         setListData(resultItems);
       }
+      setLoading(false);
     }
     fetchData();
   }, []);
@@ -135,7 +138,12 @@ function App() {
         Todo App
       </div>
       <div className='w-96 mx-auto'>
-        {listData.map((elem, index) => <ListItem key={index} id={elem.id} description={elem.description} isComplete={elem.isComplete} dueDate={elem.dueDate} status={elem.status} />)}
+        {
+          loading ?
+            <div className="mr-2 loadingio-spinner-rolling-big"><div className="ldio-big"><div></div></div></div>
+            :
+            listData.map((elem, index) => <ListItem key={index} id={elem.id} description={elem.description} isComplete={elem.isComplete} dueDate={elem.dueDate} status={elem.status} />)
+        }
       </div>
     </div>
   );
